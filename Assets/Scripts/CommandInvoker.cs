@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -5,6 +6,8 @@ public class CommandInvoker : MonoBehaviour
 {
     private Stack<ICommand> _undoStack = new Stack<ICommand>();
     private Stack<ICommand> _redoStack = new Stack<ICommand>();
+    public event Action<ICommand> OnCommandUndone;
+    public event Action<ICommand> OnCommandRedone;
 
     public void ExecuteCommand(ICommand command)
     {
@@ -20,6 +23,7 @@ public class CommandInvoker : MonoBehaviour
             ICommand activeCommand = _undoStack.Pop();
             activeCommand.Undo();
             _redoStack.Push(activeCommand);
+            OnCommandUndone?.Invoke(activeCommand);
         }
 
     }
@@ -30,6 +34,7 @@ public class CommandInvoker : MonoBehaviour
             ICommand activeCommand = _redoStack.Pop();
             activeCommand.Execute();
             _undoStack.Push(activeCommand);
+            OnCommandRedone?.Invoke(activeCommand);
         }
     }
 }
